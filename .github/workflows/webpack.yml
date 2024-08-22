@@ -21,7 +21,10 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: ${{ matrix.node-version }}
-
+        
+    - name: Install webpack-cli
+      run: npm install -D webpack-cli
+      
     - name: Build
       run: |
         npm install
