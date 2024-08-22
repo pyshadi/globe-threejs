@@ -1,6 +1,7 @@
 # Globe Module
 
 The Globe module is a dynamic 3D Earth visualization tool that utilizes Three.js for rendering and Turf.js for geospatial operations. It's designed to be both visually engaging and informative, capable of displaying day and night textures, and providing real-time timezone data by interacting with the globe. This module features a realistic tilt to mirror Earth's axial tilt of 23.5 degrees, accurately simulates the planet's rotation speed, and dynamically adjusts the lighting to reflect the true positions of the sun relative to Earth throughout the day and year. 
+
 ![Optional Image Alt Text](assets/look.png)
 
 ## Features
