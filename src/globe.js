@@ -1,5 +1,6 @@
-import * as THREE from 'https://cdn.skypack.dev/three@0.128.0';
-import * as turf from 'https://cdn.skypack.dev/@turf/turf@7.1.0';
+import * as THREE from 'three';
+import * as turf from '@turf/turf';
+
 
 class Globe {
     static TILT = 0.41;

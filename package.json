@@ -12,8 +12,12 @@
     "type": "git",
     "url": "git+https://github.com/pyshadi/globe-threejs.git"
   },
-"keywords": ["threejs", "globe", "3D", "visualization"],
-
+  "keywords": [
+    "threejs",
+    "globe",
+    "3D",
+    "visualization"
+  ],
   "author": "Shadi Alhaj",
   "license": "MIT",
   "bugs": {
