@@ -1,17 +1,19 @@
-import * as THREE from 'https://cdn.skypack.dev/three@0.128.0';
-import * as turf from 'https://cdn.skypack.dev/@turf/turf';
+import fs from 'fs';
+import path from 'path';
+import * as THREE from 'three';
+import * as turf from '@turf/turf';
 
-export class Globe {
-    static TILT = 0.41; // Earth's axial tilt in radians (23.5 degrees)
+class Globe {
+    static TILT = 0.41;
 
     constructor(options = {}) {
         const defaultOptions = {
             dayTexture: '../assets/8081_earthmap10k.jpg',
             nightTexture: '../assets/8081_earthlights10k.jpg',
             startTime: new Date(),
-            earthRadius: 5, // Default Earth radius
+            earthRadius: 5,
             onLocationClick: null,
-            timezoneGeoJSON: '../assets/all-timezones_.geojson',
+            timezoneGeoJSON: '../assets/all-timezones_.geojson', // Path to timezone GeoJSON
         };
 
         this.options = { ...defaultOptions, ...options };
@@ -44,7 +46,7 @@ export class Globe {
             uniforms: {
                 dayTexture: { value: dayTexture },
                 nightTexture: { value: nightTexture },
-                sunDirection: { value: new THREE.Vector3(1, 0, 0) }, // placeholder
+                sunDirection: { value: new THREE.Vector3(1, 0, 0) },
             },
             vertexShader: `
                 varying vec2 vUv;
@@ -66,7 +68,7 @@ export class Globe {
 
                 void main() {
                     vec3 transformedNormal = normalize(vNormal);
-                    float intensity = dot(transformedNormal, -sunDirection); // Invert sun direction
+                    float intensity = dot(transformedNormal, -sunDirection);
                     intensity = clamp(intensity, -0.05, 1.0);
                     vec4 dayColor = texture2D(dayTexture, vUv);
                     vec4 nightColor = texture2D(nightTexture, vUv);
@@ -75,14 +77,13 @@ export class Globe {
             `
         });
 
-        
         this.earth = new THREE.Mesh(earthGeometry, earthMaterial);
         this.earth.rotation.z = Globe.TILT;
         this.createAtmosphere();
     }
 
     createAtmosphere() {
-        const atmosphereRadius = this.options.earthRadius * 1.016; // realistic atmosphere radius
+        const atmosphereRadius = this.options.earthRadius * 1.016;
         const atmosphereGeometry = new THREE.SphereGeometry(atmosphereRadius, 128, 128);
 
         const atmosphereMaterial = new THREE.MeshBasicMaterial({
@@ -103,16 +104,15 @@ export class Globe {
             console.error('Earth is not an instance of THREE.Object3D', this.earth);
         }
     }
-    
 
     calculateSunPosition() {
         const now = new Date();
         const dayOfYear = (Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()) - Date.UTC(now.getFullYear(), 0, 0)) / 86400000;
-        const declination = 23.44 * Math.cos(((360 / 365) * (dayOfYear + 10)) * (Math.PI / 180)); // Declination angle
+        const declination = 23.44 * Math.cos(((360 / 365) * (dayOfYear + 10)) * (Math.PI / 180));
 
-        const earthTilt = declination * (Math.PI / 180); // Tilt in radians
+        const earthTilt = declination * (Math.PI / 180);
         const utcHours = now.getUTCHours() + now.getUTCMinutes() / 60 + now.getUTCSeconds() / 3600;
-        const sunAngle = (utcHours / 24) * 2 * Math.PI; // Convert time to angle in radians
+        const sunAngle = (utcHours / 24) * 2 * Math.PI;
 
         const sunPosition = new THREE.Vector3(
             Math.cos(sunAngle),
@@ -135,7 +135,7 @@ export class Globe {
 
     update() {
         const now = new Date();
-        const rotation = (2 * Math.PI) / 86164; // Sidereal day length in seconds
+        const rotation = (2 * Math.PI) / 86164;
         this.earth.rotation.y += rotation * (now - this.startTime) / 1000;
         this.startTime = now;
         this.updateLighting();
@@ -159,7 +159,6 @@ export class Globe {
         }
     }
 
-
     convertPointToLatLon(point) {
         const radius = this.options.earthRadius;
 
@@ -169,7 +168,6 @@ export class Globe {
         const lat = Math.asin(point.y / radius) * (180 / Math.PI);
         let lon = Math.atan2(point.z, point.x) * (180 / Math.PI);
 
-        // fix east-west sign
         lon *= -1;
 
         return { lat, lon };
@@ -208,19 +206,19 @@ export class Globe {
 
     calculateLocalDateTime(timezoneOffset, lat, lon) {
         const now = new Date();
+
         const utcHours = now.getUTCHours();
         const utcMinutes = now.getUTCMinutes();
-    
+
         let localHours = utcHours + timezoneOffset;
-    
+
         const isDST = this.isDST(lat, lon, now);
         if (isDST) {
             localHours += 1;
         }
-    
-        // Normalize the local hours and handle overflow/underflow
+
         let adjustedDate = new Date(now.getTime());
-    
+
         if (localHours >= 24) {
             localHours -= 24;
             adjustedDate.setDate(adjustedDate.getDate() + 1);
@@ -228,14 +226,15 @@ export class Globe {
             localHours += 24;
             adjustedDate.setDate(adjustedDate.getDate() - 1);
         }
-    
+
         adjustedDate.setHours(localHours);
         adjustedDate.setMinutes(utcMinutes);
-    
+
         const localTime = adjustedDate.toTimeString().split(' ')[0];
+
         const localDay = adjustedDate.toLocaleString('en-US', { weekday: 'long' });
         const localDate = adjustedDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-    
+
         return {
             localTime: localTime,
             localDay: localDay,
@@ -244,7 +243,7 @@ export class Globe {
     }
 
     isDST(lat, lon, date) {
-        const month = date.getMonth() + 1; // getMonth is zero-based
+        const month = date.getMonth() + 1;
         const day = date.getDate();
 
         const isNorthernHemisphere = lat >= 0;
@@ -267,3 +266,4 @@ export class Globe {
     }
 }
 
+export { Globe };
