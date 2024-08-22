@@ -95,8 +95,8 @@ domElement: The DOM element that the Three.js renderer is attached to.
 #### Events
 onLocationClick: Triggered when a location on the globe is clicked. Receives an object containing the following 
 #### properties:
-**lat:** Latitude of the clicked location.
-**lon:** Longitude of the clicked location.
-**timezone:** Timezone information of the clicked location.
-**localTime:** Local time at the clicked location.
-**localDate:** Local date at the clicked location.
+- **lat:** Latitude of the clicked location.
+- **lon:** Longitude of the clicked location.
+- **timezone:** Timezone information of the clicked location.
+- **localTime:** Local time at the clicked location.
+- **localDate:** Local date at the clicked location.
