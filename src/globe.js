@@ -1,6 +1,10 @@
-import * as THREE from 'three';
-import * as turf from '@turf/turf';
+//For webpack pipeline
+//import * as THREE from 'three';
+//import * as turf from '@turf/turf';
 
+//For npm package
+import * as THREE from 'https://cdn.skypack.dev/three@0.128.0';
+import * as turf from 'https://cdn.skypack.dev/@turf/turf@7.1.0';
 
 class Globe {
     static TILT = 0.41;
