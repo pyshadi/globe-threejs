@@ -51,5 +51,4 @@ coverage/
 dist/
 build/
 
-# Asset files (if they are large and should not be in git)
-assets/
+
