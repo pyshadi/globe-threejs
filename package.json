@@ -1,6 +1,6 @@
 {
   "name": "globe-threejs",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A 3D globe visualization using Three.js with dynamic lighting and timezone calculations.",
   "main": "src/globe.js",
   "scripts": {
