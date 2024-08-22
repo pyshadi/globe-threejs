@@ -25,6 +25,9 @@ jobs:
     - name: Install webpack-cli
       run: npm install -D webpack-cli
       
+    - name: Install babel-loader
+      run: npm install --save-dev babel-loader @babel/core @babel/preset-env
+
     - name: Build
       run: |
         npm install
