@@ -68,26 +68,26 @@ animate();
 #### Options
 When creating a new instance of the Globe, you can pass in an options object to customize its behavior. Below are the available options:
 
-**dayTexture:** Path to the image file used as the Earth's daytime texture. Default is '../assets/8081_earthmap10k.jpg'.
-**nightTexture:** Path to the image file used as the Earth's nighttime texture. Default is '../assets/8081_earthlights10k.jpg'.
-**startTime:** The initial date and time used to set the globe's lighting and rotation. Default is new Date(), which sets it to the current date and time.
-**earthRadius:** The radius of the globe in Three.js units. Default is 5.
-**onLocationClick:** A callback function that gets executed when a location on the globe is clicked. This function receives an object containing latitude, longitude, timezone, and other relevant data for the clicked location. Default is null.
-**timezoneGeoJSON:** Path to the GeoJSON file that contains timezone information. Default is '../assets/all-timezones_.geojson'.
+- **dayTexture:** Path to the image file used as the Earth's daytime texture. Default is '../assets/8081_earthmap10k.jpg'.
+- **nightTexture:** Path to the image file used as the Earth's nighttime texture. Default is '../assets/8081_earthlights10k.jpg'.
+- **startTime:** The initial date and time used to set the globe's lighting and rotation. Default is new Date(), which sets it to the current date and time.
+- **earthRadius:** The radius of the globe in Three.js units. Default is 5.
+- **onLocationClick:** A callback function that gets executed when a location on the globe is clicked. This function receives an object containing latitude, longitude, timezone, and other relevant data for the clicked location. Default is null.
+- **timezoneGeoJSON:** Path to the GeoJSON file that contains timezone information. Default is '../assets/all-timezones_.geojson'.
 #### Methods
 The Globe class provides several methods to interact with and control the globe:
 
-**init():** Initializes the globe by loading the necessary resources and setting up the Three.js scene. This method is automatically called upon instance creation.
+- **init():** Initializes the globe by loading the necessary resources and setting up the Three.js scene. This method is automatically called upon instance creation.
 
-**addToScene(scene):** Adds the globe to an existing Three.js scene.
+- **addToScene(scene):** Adds the globe to an existing Three.js scene.
 scene: The Three.js scene object to which the globe will be added.
 
-**setDateTime(date):** Sets the globe's current date and time, affecting lighting and other time-dependent features.
+- **setDateTime(date):** Sets the globe's current date and time, affecting lighting and other time-dependent features.
 date:A JavaScript Date object representing the new date and time for the globe.
 
-**update():** Updates the globe's rotation and lighting based on real-time changes. This method is typically called within an animation loop.
+- **update():** Updates the globe's rotation and lighting based on real-time changes. This method is typically called within an animation loop.
 
-**handleMouseClick(event, camera, domElement):** Handles mouse click events on the globe, performing raycasting to determine the clicked location and executing the onLocationClick callback if specified.
+- **handleMouseClick(event, camera, domElement):** Handles mouse click events on the globe, performing raycasting to determine the clicked location and executing the onLocationClick callback if specified.
 event: The mouse event object.
 camera: The Three.js camera object used in the scene.
 domElement: The DOM element that the Three.js renderer is attached to.
