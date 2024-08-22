@@ -3,17 +3,17 @@
   "version": "1.0.0",
   "description": "A 3D globe visualization using Three.js with dynamic lighting and timezone calculations.",
   "main": "src/globe.js",
-  "scripts": {},
+  "scripts": {
+    "start": "node src/globe.js",
+    "build": "webpack --config webpack.config.js",
+    "test": "jest"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/pyshadi/globe-threejs.git"
   },
-  "keywords": [
-    "[\"threejs\"",
-    "\"globe\"",
-    "\"3D\"",
-    "\"visualization\"]"
-  ],
+"keywords": ["threejs", "globe", "3D", "visualization"],
+
   "author": "Shadi Alhaj",
   "license": "MIT",
   "bugs": {
