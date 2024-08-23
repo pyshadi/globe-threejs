@@ -96,8 +96,8 @@ camera: The Three.js camera object used in the scene.
 domElement: The DOM element that the Three.js renderer is attached to.
 
 #### Events
-onLocationClick: Triggered when a location on the globe is clicked. Receives an object containing the following 
-#### properties:
+onLocationClick: Triggered when a location on the globe is clicked. Receives an object containing the following properties:
+
 - **lat:** Latitude of the clicked location.
 - **lon:** Longitude of the clicked location.
 - **timezone:** Timezone information of the clicked location.
