@@ -103,3 +103,7 @@ onLocationClick: Triggered when a location on the globe is clicked. Receives an 
 - **timezone:** Timezone information of the clicked location.
 - **localTime:** Local time at the clicked location.
 - **localDate:** Local date at the clicked location.
+
+## License
+
+This project is licensed under the **MIT License**
