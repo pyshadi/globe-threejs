@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Globe – Example</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #000; overflow: hidden; font-family: sans-serif; }
+
+        #info {
+            position: absolute;
+            top: 16px;
+            left: 16px;
+            color: #fff;
+            background: rgba(0, 0, 0, 0.55);
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            line-height: 1.6;
+            pointer-events: none;
+        }
+
+        #info h2 { font-size: 16px; margin-bottom: 6px; }
+    </style>
+</head>
+<body>
+
+<div id="info">
+    <h2>🌍 Globe – Example</h2>
+    Click anywhere on the globe to see local timezone &amp; time.
+    <hr style="margin: 8px 0; border-color: #555;" />
+    <div id="location-data">No location selected yet.</div>
+</div>
+
+<!--
+    Dependencies loaded from CDN.
+    Replace with npm-bundled versions when integrating into a build pipeline.
+
+    NOTE: The globe-threejs import below uses the published npm/CDN version.
+    When running locally from the repository, replace it with a relative path:
+        import { Globe } from '../src/globe.js';
+    Make sure to also serve Three.js and @turf/turf locally or via CDN.
+-->
+<script type="module">
+import * as THREE from 'https://cdn.skypack.dev/three@0.128.0';
+
+// When running from the published package, use the CDN import:
+//   import { Globe } from 'https://cdn.skypack.dev/globe-threejs';
+// When running locally from this repository, use the relative import instead:
+import { Globe } from '../src/globe.js';
+
+// ── Scene setup ──────────────────────────────────────────────────────────────
+
+const scene    = new THREE.Scene();
+const camera   = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(window.devicePixelRatio);
+document.body.appendChild(renderer.domElement);
+
+camera.position.z = 15;
+
+// ── Globe ────────────────────────────────────────────────────────────────────
+
+const globe = new Globe({
+    // Paths to textures bundled with the package.
+    // Adjust these to your own CDN / asset URLs as needed.
+    dayTexture:       '../assets/8081_earthmap10k.jpg',
+    nightTexture:     '../assets/8081_earthlights10k.jpg',
+    timezoneGeoJSON:  '../assets/all-timezones_.geojson',
+    earthRadius: 5,
+
+    /** Called whenever the user clicks on the globe. */
+    onLocationClick(info) {
+        const el = document.getElementById('location-data');
+        el.innerHTML = `
+            <strong>Lat / Lon:</strong> ${info.lat.toFixed(2)}° / ${info.lon.toFixed(2)}°<br/>
+            <strong>Timezone:</strong> ${info.timezone}<br/>
+            <strong>Local time:</strong> ${info.localTime}<br/>
+            <strong>Local date:</strong> ${info.localDate} (${info.localDay})
+        `;
+    },
+});
+
+// Wait for textures / GeoJSON to load, then add the globe to the scene
+globe._initPromise.then(() => globe.addToScene(scene));
+
+// ── Handle window resize ─────────────────────────────────────────────────────
+
+window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+// ── Handle click ─────────────────────────────────────────────────────────────
+
+renderer.domElement.addEventListener('click', (event) => {
+    globe.handleMouseClick(event, camera, renderer.domElement);
+});
+
+// ── Animation loop ───────────────────────────────────────────────────────────
+
+(function animate() {
+    requestAnimationFrame(animate);
+    renderer.render(scene, camera);
+}());
+</script>
+
+</body>
+</html>

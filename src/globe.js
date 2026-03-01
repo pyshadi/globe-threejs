@@ -24,7 +24,7 @@ class Globe {
 
         this.raycaster = new THREE.Raycaster();
         this.mouse = new THREE.Vector2();
-        this.init();
+        this._initPromise = this.init();
     }
 
     async init() {
