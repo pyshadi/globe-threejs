@@ -1,10 +1,5 @@
-//For webpack pipeline
-//import * as THREE from 'three';
-//import * as turf from '@turf/turf';
-
-//For npm package
-import * as THREE from 'https://cdn.skypack.dev/three@0.128.0';
-import * as turf from 'https://cdn.skypack.dev/@turf/turf@7.1.0';
+import * as THREE from 'three';
+import * as turf from '@turf/turf';
 
 class Globe {
     static TILT = 0.41;
@@ -35,8 +30,16 @@ class Globe {
     }
 
     async loadTimezones() {
-        const response = await fetch(this.options.timezoneGeoJSON);
-        this.timezonesData = await response.json();
+        try {
+            const response = await fetch(this.options.timezoneGeoJSON);
+            if (!response.ok) {
+                throw new Error(`Failed to load timezone data: ${response.status} ${response.statusText}`);
+            }
+            this.timezonesData = await response.json();
+        } catch (error) {
+            console.error('Error loading timezone data:', error);
+            this.timezonesData = null;
+        }
     }
 
     createGlobe() {
