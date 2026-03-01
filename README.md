@@ -12,12 +12,16 @@ The Globe module is a dynamic 3D Earth visualization tool that utilizes Three.js
 - **Real-Time Updates**: The globe rotation and lighting adjust in real-time, providing an accurate representation of the Earth's rotation and sunlight distribution.
 - **Customizable Options**: Allows customization of textures, initial start time, and other globe properties.
 
+## Requirements
+
+- **Node.js ≥ 20.0.0** (Node 18 is end-of-life and not supported)
+
 ## Dependencies
 
 You need to include the following dependencies in your project via npm or direct script tags in your HTML:
 
 ```bash
-npm install three turf
+npm install three @turf/turf
 ```
 Or include these scripts in your HTML:
 ```
