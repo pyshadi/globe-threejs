@@ -2,7 +2,9 @@
 
 The Globe module is a dynamic 3D Earth visualization tool built on Three.js. It displays day and night textures, and clicking the globe gives you the local time zone, time and date for that spot, including daylight saving time. The globe has Earth's axial tilt, rotates at the real sidereal rate, and lights the surface according to the sun's actual position for the current date and time.
 
-![Optional Image Alt Text](https://raw.githubusercontent.com/pyshadi/globe-threejs/main/assets/look.png)
+**[▶ Live demo](https://pyshadi.github.io/globe-threejs/)**: orbit the globe, click anywhere to see its local time, or try the [10K textures](https://pyshadi.github.io/globe-threejs/?res=10k).
+
+[![Screenshot of the globe. Click to open the live demo.](https://raw.githubusercontent.com/pyshadi/globe-threejs/main/assets/look.png)](https://pyshadi.github.io/globe-threejs/)
 
 ## Features
 
