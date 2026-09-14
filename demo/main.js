@@ -87,3 +87,4 @@ setInterval(() => {
 
 // Handy for experimenting from the browser console, e.g. globe.setDateTime('2024-12-21T12:00Z')
 window.globe = globe;
+window.demo = { globe, renderer, scene, camera, controls };

@@ -4,7 +4,9 @@ The Globe module is a dynamic 3D Earth visualization tool built on Three.js. It 
 
 **[▶ Live demo](https://pyshadi.github.io/globe-threejs/)**: orbit the globe, click anywhere to see its local time, or try the [10K textures](https://pyshadi.github.io/globe-threejs/?res=10k).
 
-[![Screenshot of the globe. Click to open the live demo.](https://raw.githubusercontent.com/pyshadi/globe-threejs/main/assets/look.png)](https://pyshadi.github.io/globe-threejs/)
+[![Animated preview: a 24-hour time-lapse of day and night moving across the globe. Click to open the live demo.](https://raw.githubusercontent.com/pyshadi/globe-threejs/main/assets/demo.gif)](https://pyshadi.github.io/globe-threejs/)
+
+*Recorded from the live demo: 24 hours of daylight and city lights at the June solstice. Click the animation to try it yourself.*
 
 ## Features
 
