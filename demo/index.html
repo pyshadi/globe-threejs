@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>globe-threejs demo</title>
+    <style>
+        html, body { margin: 0; height: 100%; overflow: hidden; background: #000; }
+        canvas { display: block; }
+        #panel {
+            position: absolute; top: 12px; left: 12px; max-width: calc(100% - 48px);
+            padding: 12px; border-radius: 8px;
+            background: rgba(0, 0, 0, 0.65); color: #eee;
+            font: 13px/1.4 system-ui, sans-serif;
+        }
+        #panel label { display: block; margin-bottom: 6px; }
+        #panel input, #panel button { font: inherit; }
+        #clock { margin: 8px 0; color: #9cf; }
+        #info { margin: 0; white-space: pre; font: 12px/1.5 ui-monospace, monospace; }
+    </style>
+</head>
+<body>
+    <div id="panel">
+        <label>Set date &amp; time (your local time)<br>
+            <input type="datetime-local" id="datetime" step="60">
+            <button id="now" type="button">Now</button>
+        </label>
+        <div id="clock"></div>
+        <pre id="info">Click the globe to see local time. Drag to orbit.</pre>
+    </div>
+    <script type="module" src="./main.js"></script>
+</body>
+</html>
