@@ -1,5 +1,6 @@
 import * as THREE from 'three';
-import * as turf from '@turf/turf';
+import { point as turfPoint } from '@turf/helpers';
+import { booleanPointInPolygon } from '@turf/boolean-point-in-polygon';
 
 class Globe {
     static TILT = 0.41;
@@ -180,7 +181,7 @@ class Globe {
     }
 
     calculateTimezoneAndLocalTime(lat, lon) {
-        const point = turf.point([lon, lat]);
+        const point = turfPoint([lon, lat]);
 
         let timezoneOffset = 0;
         let timezoneInfo = 'GMT';
@@ -190,7 +191,7 @@ class Globe {
 
         if (this.timezonesData) {
             for (const feature of this.timezonesData.features) {
-                if (turf.booleanPointInPolygon(point, feature)) {
+                if (booleanPointInPolygon(point, feature)) {
                     timezoneOffset = feature.properties.ZONE;
                     timezoneInfo = `GMT${timezoneOffset >= 0 ? '+' : ''}${timezoneOffset}`;
                     const localDateTime = this.calculateLocalDateTime(timezoneOffset, lat, lon);

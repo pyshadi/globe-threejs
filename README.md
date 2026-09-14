@@ -21,12 +21,13 @@ The Globe module is a dynamic 3D Earth visualization tool that utilizes Three.js
 You need to include the following dependencies in your project via npm or direct script tags in your HTML:
 
 ```bash
-npm install three @turf/turf
+npm install three @turf/helpers @turf/boolean-point-in-polygon
 ```
 Or include these scripts in your HTML:
 ```
 <script src="https://cdn.skypack.dev/three@0.128.0"></script>
-<script src="https://cdn.skypack.dev/@turf/turf@7.1.0"></script>
+<script src="https://cdn.skypack.dev/@turf/helpers@7.4.0"></script>
+<script src="https://cdn.skypack.dev/@turf/boolean-point-in-polygon@7.4.0"></script>
 ```
 
 ## Installation

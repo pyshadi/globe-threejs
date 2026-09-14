@@ -24,8 +24,15 @@
     "url": "https://github.com/pyshadi/globe-threejs/issues"
   },
   "homepage": "https://github.com/pyshadi/globe-threejs#readme",
+  "files": [
+    "src",
+    "assets",
+    "README.md",
+    "LICENSE"
+  ],
   "dependencies": {
-    "@turf/turf": "^7.1.0",
+    "@turf/boolean-point-in-polygon": "^7.4.0",
+    "@turf/helpers": "^7.4.0",
     "three": "^0.167.1"
   },
   "devDependencies": {
