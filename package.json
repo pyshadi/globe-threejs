@@ -38,7 +38,7 @@
   "overrides": {
     "serialize-javascript": "^7.0.5",
     "@babel/plugin-transform-modules-systemjs": "^7.29.7",
-    "fast-uri": "^3.1.2"
+    "fast-uri": "^3.1.7"
   },
   "engines": {
     "node": ">=20.0.0"
