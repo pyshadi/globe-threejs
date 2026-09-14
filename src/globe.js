@@ -1,45 +1,38 @@
 import * as THREE from 'three';
-import { point as turfPoint } from '@turf/helpers';
-import { booleanPointInPolygon } from '@turf/boolean-point-in-polygon';
+import { getLocalTimeInfo, getSunDirection, localPointToLatLon } from './geo.js';
+
+const SIDEREAL_DAY_SECONDS = 86164;
 
 class Globe {
     static TILT = 0.41;
 
     constructor(options = {}) {
         const defaultOptions = {
-            dayTexture: '../assets/8081_earthmap10k.jpg',
-            nightTexture: '../assets/8081_earthlights10k.jpg',
+            // Resolved relative to this file, so they work when installed from npm and bundled.
+            dayTexture: new URL('../assets/8081_earthmap10k.jpg', import.meta.url).href,
+            nightTexture: new URL('../assets/8081_earthlights10k.jpg', import.meta.url).href,
             startTime: new Date(),
             earthRadius: 5,
             onLocationClick: null,
-            timezoneGeoJSON: '../assets/all-timezones_.geojson', // Path to timezone GeoJSON
+            autoUpdate: true, // set to false to call update() from your own animation loop
         };
 
         this.options = { ...defaultOptions, ...options };
-        this.startTime = this.options.startTime;
+        this.currentTime = new Date(this.options.startTime);
+        this.lastFrameTime = null;
+        this.animationFrameId = null;
+        this.loop = this.loop.bind(this);
 
         this.raycaster = new THREE.Raycaster();
         this.mouse = new THREE.Vector2();
         this.init();
     }
 
-    async init() {
-        await this.loadTimezones();
+    init() {
         this.createGlobe();
         this.updateLighting();
-        requestAnimationFrame(this.update.bind(this));
-    }
-
-    async loadTimezones() {
-        try {
-            const response = await fetch(this.options.timezoneGeoJSON);
-            if (!response.ok) {
-                throw new Error(`Failed to load timezone data: ${response.status} ${response.statusText}`);
-            }
-            this.timezonesData = await response.json();
-        } catch (error) {
-            console.error('Error loading timezone data:', error);
-            this.timezonesData = null;
+        if (this.options.autoUpdate) {
+            this.animationFrameId = requestAnimationFrame(this.loop);
         }
     }
 
@@ -105,60 +98,48 @@ class Globe {
     }
 
     addToScene(scene) {
-        if (this.earth instanceof THREE.Object3D) {
-            scene.add(this.earth);
-        } else {
-            console.error('Earth is not an instance of THREE.Object3D', this.earth);
-        }
-    }
-
-    calculateSunPosition() {
-        const now = new Date();
-        const dayOfYear = (Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()) - Date.UTC(now.getFullYear(), 0, 0)) / 86400000;
-        const declination = 23.44 * Math.cos(((360 / 365) * (dayOfYear + 10)) * (Math.PI / 180));
-
-        const earthTilt = declination * (Math.PI / 180);
-        const utcHours = now.getUTCHours() + now.getUTCMinutes() / 60 + now.getUTCSeconds() / 3600;
-        const sunAngle = (utcHours / 24) * 2 * Math.PI;
-
-        const sunPosition = new THREE.Vector3(
-            Math.cos(sunAngle),
-            Math.sin(earthTilt),
-            Math.sin(sunAngle)
-        );
-
-        return sunPosition.normalize();
+        scene.add(this.earth);
     }
 
     updateLighting() {
-        const sunDirection = this.calculateSunPosition();
-        this.earth.material.uniforms.sunDirection.value.copy(sunDirection);
+        this.earth.material.uniforms.sunDirection.value.copy(getSunDirection(this.currentTime));
     }
 
     setDateTime(date) {
-        this.startTime = date;
+        this.currentTime = new Date(date);
         this.updateLighting();
     }
 
-    update() {
-        const now = new Date();
-        const rotation = (2 * Math.PI) / 86164;
-        this.earth.rotation.y += rotation * (now - this.startTime) / 1000;
-        this.startTime = now;
+    getDateTime() {
+        return new Date(this.currentTime);
+    }
+
+    // Advances the globe's clock by the real time elapsed since the previous call.
+    update(now = performance.now()) {
+        if (this.lastFrameTime !== null) {
+            const elapsedMs = now - this.lastFrameTime;
+            this.currentTime = new Date(this.currentTime.getTime() + elapsedMs);
+            this.earth.rotation.y += ((2 * Math.PI) / SIDEREAL_DAY_SECONDS) * (elapsedMs / 1000);
+        }
+        this.lastFrameTime = now;
         this.updateLighting();
-        requestAnimationFrame(this.update.bind(this));
+    }
+
+    loop(now) {
+        this.update(now);
+        this.animationFrameId = requestAnimationFrame(this.loop);
     }
 
     handleMouseClick(event, camera, domElement) {
-        this.mouse.x = ((event.clientX - domElement.getBoundingClientRect().left) / domElement.clientWidth) * 2 - 1;
-        this.mouse.y = -((event.clientY - domElement.getBoundingClientRect().top) / domElement.clientHeight) * 2 + 1;
+        const rect = domElement.getBoundingClientRect();
+        this.mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+        this.mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
         this.raycaster.setFromCamera(this.mouse, camera);
 
-        const intersects = this.raycaster.intersectObject(this.earth);
+        // Not recursive: clicks that only graze the atmosphere shell are ignored.
+        const intersects = this.raycaster.intersectObject(this.earth, false);
         if (intersects.length > 0) {
-            const intersect = intersects[0];
-            const point = intersect.point;
-            const latLon = this.convertPointToLatLon(point);
+            const latLon = this.convertPointToLatLon(intersects[0].point);
             const timezoneInfo = this.calculateTimezoneAndLocalTime(latLon.lat, latLon.lon);
             if (typeof this.options.onLocationClick === 'function') {
                 this.options.onLocationClick({ ...latLon, ...timezoneInfo });
@@ -166,110 +147,29 @@ class Globe {
         }
     }
 
+    // Takes a point in world space; accounts for the globe's position, tilt, spin and scale.
     convertPointToLatLon(point) {
-        const radius = this.options.earthRadius;
-
-        const tiltMatrix = new THREE.Matrix4().makeRotationZ(-Globe.TILT);
-        point.applyMatrix4(tiltMatrix);
-
-        const lat = Math.asin(point.y / radius) * (180 / Math.PI);
-        let lon = Math.atan2(point.z, point.x) * (180 / Math.PI);
-
-        lon *= -1;
-
-        return { lat, lon };
+        this.earth.updateWorldMatrix(true, false);
+        return localPointToLatLon(this.earth.worldToLocal(point.clone()));
     }
 
     calculateTimezoneAndLocalTime(lat, lon) {
-        const point = turfPoint([lon, lat]);
-
-        let timezoneOffset = 0;
-        let timezoneInfo = 'GMT';
-        let localTime = 'Unknown';
-        let localDay = 'Unknown';
-        let localDate = 'Unknown';
-
-        if (this.timezonesData) {
-            for (const feature of this.timezonesData.features) {
-                if (booleanPointInPolygon(point, feature)) {
-                    timezoneOffset = feature.properties.ZONE;
-                    timezoneInfo = `GMT${timezoneOffset >= 0 ? '+' : ''}${timezoneOffset}`;
-                    const localDateTime = this.calculateLocalDateTime(timezoneOffset, lat, lon);
-                    localTime = localDateTime.localTime;
-                    localDay = localDateTime.localDay;
-                    localDate = localDateTime.localDate;
-                    break;
-                }
-            }
-        }
-
-        return {
-            timezone: timezoneInfo,
-            localTime: localTime,
-            localDay: localDay,
-            localDate: localDate,
-        };
+        return getLocalTimeInfo(lat, lon, this.currentTime);
     }
 
-    calculateLocalDateTime(timezoneOffset, lat, lon) {
-        const now = new Date();
-
-        const utcHours = now.getUTCHours();
-        const utcMinutes = now.getUTCMinutes();
-
-        let localHours = utcHours + timezoneOffset;
-
-        const isDST = this.isDST(lat, lon, now);
-        if (isDST) {
-            localHours += 1;
+    dispose() {
+        if (this.animationFrameId !== null) {
+            cancelAnimationFrame(this.animationFrameId);
+            this.animationFrameId = null;
         }
 
-        let adjustedDate = new Date(now.getTime());
-
-        if (localHours >= 24) {
-            localHours -= 24;
-            adjustedDate.setDate(adjustedDate.getDate() + 1);
-        } else if (localHours < 0) {
-            localHours += 24;
-            adjustedDate.setDate(adjustedDate.getDate() - 1);
-        }
-
-        adjustedDate.setHours(localHours);
-        adjustedDate.setMinutes(utcMinutes);
-
-        const localTime = adjustedDate.toTimeString().split(' ')[0];
-
-        const localDay = adjustedDate.toLocaleString('en-US', { weekday: 'long' });
-        const localDate = adjustedDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-
-        return {
-            localTime: localTime,
-            localDay: localDay,
-            localDate: localDate,
-        };
-    }
-
-    isDST(lat, lon, date) {
-        const month = date.getMonth() + 1;
-        const day = date.getDate();
-
-        const isNorthernHemisphere = lat >= 0;
-        if (isNorthernHemisphere) {
-            return (month > 3 && month < 11) || 
-                   (month === 3 && day >= this.getLastSundayOfMonth(date).getDate()) || 
-                   (month === 10 && day <= this.getLastSundayOfMonth(date).getDate());
-        } else {
-            return (month < 4 || month > 9) || 
-                   (month === 4 && day <= this.getLastSundayOfMonth(date).getDate()) || 
-                   (month === 9 && day >= this.getLastSundayOfMonth(date).getDate());
-        }
-    }
-
-    getLastSundayOfMonth(date) {
-        const lastDayOfMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0);
-        const dayOfWeek = lastDayOfMonth.getDay();
-        const lastSunday = lastDayOfMonth.getDate() - dayOfWeek;
-        return new Date(date.getFullYear(), date.getMonth(), lastSunday);
+        this.earth.removeFromParent();
+        this.earth.geometry.dispose();
+        this.earth.material.uniforms.dayTexture.value.dispose();
+        this.earth.material.uniforms.nightTexture.value.dispose();
+        this.earth.material.dispose();
+        this.atmosphere.geometry.dispose();
+        this.atmosphere.material.dispose();
     }
 }
 
