@@ -1,0 +1,13 @@
+{
+  // Only used to check the hand-written type definitions: `npm run typecheck`
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "lib": ["ES2022", "DOM"],
+    "types": [],
+    "strict": true,
+    "noEmit": true
+  },
+  "include": ["src/globe.d.ts", "test/types.check.ts"]
+}
