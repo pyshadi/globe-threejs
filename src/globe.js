@@ -3,14 +3,30 @@ import { getLocalTimeInfo, getSunDirection, localPointToLatLon } from './geo.js'
 
 const SIDEREAL_DAY_SECONDS = 86164;
 
+// 10K textures are too large for the npm package, so they're served from the GitHub repo via jsDelivr,
+// pinned to a commit so the files can never change underneath users.
+const HIGH_RES_TEXTURE_BASE = 'https://cdn.jsdelivr.net/gh/pyshadi/globe-threejs@08f0eeab16a1c28fce80a7fa43116c3076470455/assets/';
+
+const TEXTURES = {
+    // Resolved relative to this file, so they work when installed from npm and bundled.
+    '4k': {
+        day: new URL('../assets/earth-day-4k.jpg', import.meta.url).href,
+        night: new URL('../assets/earth-night-4k.jpg', import.meta.url).href,
+    },
+    '10k': {
+        day: `${HIGH_RES_TEXTURE_BASE}8081_earthmap10k.jpg`,
+        night: `${HIGH_RES_TEXTURE_BASE}8081_earthlights10k.jpg`,
+    },
+};
+
 class Globe {
     static TILT = 0.41;
 
     constructor(options = {}) {
         const defaultOptions = {
-            // Resolved relative to this file, so they work when installed from npm and bundled.
-            dayTexture: new URL('../assets/8081_earthmap10k.jpg', import.meta.url).href,
-            nightTexture: new URL('../assets/8081_earthlights10k.jpg', import.meta.url).href,
+            textureResolution: '4k', // '4k' (bundled) or '10k' (loaded from jsDelivr)
+            dayTexture: null, // custom texture URLs override textureResolution
+            nightTexture: null,
             startTime: new Date(),
             earthRadius: 5,
             onLocationClick: null,
@@ -18,6 +34,13 @@ class Globe {
         };
 
         this.options = { ...defaultOptions, ...options };
+
+        const textures = TEXTURES[this.options.textureResolution];
+        if (!textures) {
+            throw new Error(`Unknown textureResolution "${this.options.textureResolution}". Use '4k' or '10k'.`);
+        }
+        this.options.dayTexture ??= textures.day;
+        this.options.nightTexture ??= textures.night;
         this.currentTime = new Date(this.options.startTime);
         this.lastFrameTime = null;
         this.animationFrameId = null;

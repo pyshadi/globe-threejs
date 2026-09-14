@@ -2,12 +2,24 @@
   "name": "globe-threejs",
   "version": "2.0.2",
   "description": "A 3D globe visualization using Three.js with dynamic lighting and timezone calculations.",
-  "main": "src/globe.js",
+  "type": "module",
+  "main": "./src/globe.js",
+  "types": "./src/globe.d.ts",
+  "exports": {
+    ".": {
+      "types": "./src/globe.d.ts",
+      "default": "./src/globe.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "sideEffects": false,
   "scripts": {
     "dev": "vite",
-    "build": "webpack --config webpack.config.js",
+    "build": "vite build",
+    "preview": "vite preview",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "typecheck": "tsc -p tsconfig.json"
   },
   "repository": {
     "type": "git",
@@ -27,27 +39,23 @@
   "homepage": "https://github.com/pyshadi/globe-threejs#readme",
   "files": [
     "src",
-    "assets",
+    "assets/earth-day-4k.jpg",
+    "assets/earth-night-4k.jpg",
     "README.md",
     "LICENSE"
   ],
   "dependencies": {
-    "@photostructure/tz-lookup": "^11.6.1",
-    "three": "^0.167.1"
+    "@photostructure/tz-lookup": "^11.6.1"
+  },
+  "peerDependencies": {
+    "three": ">=0.150.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.29.0",
-    "@babel/preset-env": "^7.29.0",
-    "babel-loader": "^10.0.0",
+    "@types/three": "^0.167.2",
+    "three": "^0.167.1",
+    "typescript": "^7.0.2",
     "vite": "^8.3.0",
-    "vitest": "^5.0.0",
-    "webpack": "^5.105.3",
-    "webpack-cli": "^6.0.1"
-  },
-  "overrides": {
-    "serialize-javascript": "^7.0.5",
-    "@babel/plugin-transform-modules-systemjs": "^7.29.7",
-    "fast-uri": "^3.1.7"
+    "vitest": "^5.0.0"
   },
   "engines": {
     "node": ">=20.0.0"

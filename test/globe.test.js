@@ -32,9 +32,27 @@ describe('Globe', () => {
     it('resolves the default textures relative to the package', () => {
         const globe = new Globe();
 
-        expect(globe.options.dayTexture).toMatch(/\/assets\/8081_earthmap10k\.jpg$/);
-        expect(globe.options.nightTexture).toMatch(/\/assets\/8081_earthlights10k\.jpg$/);
+        expect(globe.options.dayTexture).toMatch(/\/assets\/earth-day-4k\.jpg$/);
+        expect(globe.options.nightTexture).toMatch(/\/assets\/earth-night-4k\.jpg$/);
         expect(() => new URL(globe.options.dayTexture)).not.toThrow();
+    });
+
+    it('loads 10K textures from the CDN when requested', () => {
+        const globe = new Globe({ textureResolution: '10k' });
+
+        expect(globe.options.dayTexture).toMatch(/^https:\/\/cdn\.jsdelivr\.net\/gh\/pyshadi\/globe-threejs@[0-9a-f]{40}\/assets\/8081_earthmap10k\.jpg$/);
+        expect(globe.options.nightTexture).toMatch(/^https:\/\/cdn\.jsdelivr\.net\/gh\/pyshadi\/globe-threejs@[0-9a-f]{40}\/assets\/8081_earthlights10k\.jpg$/);
+    });
+
+    it('prefers custom texture URLs over textureResolution', () => {
+        const globe = new Globe({ textureResolution: '10k', dayTexture: 'my-day.jpg' });
+
+        expect(globe.options.dayTexture).toBe('my-day.jpg');
+        expect(globe.options.nightTexture).toMatch(/8081_earthlights10k\.jpg$/);
+    });
+
+    it('rejects unknown texture resolutions', () => {
+        expect(() => new Globe({ textureResolution: '8k' })).toThrow(/textureResolution/);
     });
 
     it('lights the globe for startTime and setDateTime', () => {

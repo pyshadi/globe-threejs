@@ -16,6 +16,8 @@
         #panel label { display: block; margin-bottom: 6px; }
         #panel input, #panel button { font: inherit; }
         #clock { margin: 8px 0; color: #9cf; }
+        #resolution a { color: #9cf; }
+        #resolution a.active { color: #fff; font-weight: 600; text-decoration: none; }
         #info { margin: 0; white-space: pre; font: 12px/1.5 ui-monospace, monospace; }
     </style>
 </head>
@@ -25,6 +27,7 @@
             <input type="datetime-local" id="datetime" step="60">
             <button id="now" type="button">Now</button>
         </label>
+        <div id="resolution">Textures: <a id="res-4k" href="?res=4k">4K</a> · <a id="res-10k" href="?res=10k">10K</a></div>
         <div id="clock"></div>
         <pre id="info">Click the globe to see local time. Drag to orbit.</pre>
     </div>

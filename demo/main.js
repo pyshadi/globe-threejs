@@ -27,7 +27,12 @@ const marker = new THREE.Mesh(
 );
 marker.visible = false;
 
+// Open the demo with ?res=10k to try the high-resolution textures.
+const textureResolution = new URLSearchParams(window.location.search).get('res') === '10k' ? '10k' : '4k';
+document.getElementById(`res-${textureResolution}`).classList.add('active');
+
 const globe = new Globe({
+    textureResolution,
     onLocationClick(location) {
         // The marker is a child of the globe, so it should stay on the clicked spot as the globe spins.
         marker.position.copy(latLonToLocalPoint(location.lat, location.lon, globe.options.earthRadius));
